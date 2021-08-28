@@ -1,0 +1,20 @@
+---
+- name: brakeing grub on servers
+  hosts: testhosts
+
+  vars:
+    new_elems: "net.ifnames=0 biosdevname=0"
+
+  tasks:
+  - name: brakeing grub
+    ansible.builtin.lineinfile:
+      path: /etc/default/grub
+      regexp: ^GRUB_CMDLINE_LINUX="(((?!{{ new_elems }}).)*)"$
+      line: GRUB_CMDLINE_LINUX="\g<1> {{ new_elems }}"
+      backrefs: yes
+    register: grub_reconfig
+
+  - name: Write grub configuration file
+    command: grub2-mkconfig -o /boot/grub2/grub.cfg
+    when: grub_reconfig.changed == true
+...

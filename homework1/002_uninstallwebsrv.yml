@@ -1,0 +1,26 @@
+---
+- name: remove web server
+  hosts: testhosts
+
+  vars:
+    package_name: httpd
+    service_name: httpd
+
+  tasks:
+    - name: "Close ports on firewall"
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: disabled
+        immediate: yes
+
+    - name: "Uninstalling servise {{ package_name }}"
+      yum:
+        name: "{{ package_name }}"
+        state: absent
+
+    - name: "Remove page content"
+      file:
+        dest: "/var/www/html/index.html"
+        state: absent
+...
