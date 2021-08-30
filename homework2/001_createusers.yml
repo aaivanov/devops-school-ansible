@@ -1,0 +1,23 @@
+---
+- name: Configure web server
+  hosts: testhosts
+
+  tasks:
+
+  - name: Include vars
+    include_vars:
+      file: vars/vault.yml
+
+  - name: Create a login user
+    user:
+      name: "{{ item.user }}"
+      comment: "{{ item.user }}@example.com"
+      password: "{{ item.pass }}"
+      home: "/home/test/{{ item.user }}"
+      update_password: on_create
+    with_items:
+      - { user: 'Alice', pass: "{{ passwds.Alice_pass }}" }
+      - { user: 'Bob', pass: "{{ passwds.Bob_pass }}" }
+      - { user: 'Carol', pass: "{{ passwds.Carol_pass }}" }
+
+...
