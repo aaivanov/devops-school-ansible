@@ -28,10 +28,7 @@
       enabled: yes
 
   - name: "Create page content"
-#    copy:
     template: src=index.html dest={{ root }}/{{ content_folder }}/index.html
-#      dest: "{{ root }}/{{ content_folder }}/index.html"
-#      src: "index.html"
 
   - name: "Open ports on firewall"
     firewalld:
