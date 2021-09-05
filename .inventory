@@ -1,0 +1,2 @@
+node1.example.com ansible_user=ansible
+node2.example.com ansible_user=ansible

@@ -1,0 +1,7 @@
+---
+  package_name: vsftpd
+  service_name: vsftpd
+  root: /var/ftp/pub
+  content_folder: upload
+  pasv_min_port: 50000
+  pasv_max_port: 50020

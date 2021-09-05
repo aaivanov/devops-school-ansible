@@ -1,6 +1,6 @@
 ---
 - name: Configure web server
-  hosts: testhosts
+  hosts: all
 
   tasks:
 

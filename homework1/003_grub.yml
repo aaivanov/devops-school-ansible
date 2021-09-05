@@ -1,6 +1,6 @@
 ---
 - name: brakeing grub on servers
-  hosts: testhosts
+  hosts: all
 
   vars:
     new_elems: "net.ifnames=0 biosdevname=0"

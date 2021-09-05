@@ -1,0 +1,89 @@
+---
+  - name: SELinux
+    selinux:
+      policy: targeted
+      state: enforcing
+#      state: disabled
+    register: restart_required
+
+  - name: Reboot and wait to restart
+    reboot:
+      msg: "Reboot initiated by Ansible"
+      connect_timeout: 5
+      reboot_timeout: 120
+      pre_reboot_delay: 0
+      post_reboot_delay: 10
+      test_command: whoami
+    when: restart_required is changed
+
+  - name: "Insialling servise {{ package_name }}"
+    yum:
+      name: "{{ package_name }}"
+      state: installed 
+
+  - name: Set ftpd_anon_write in ON
+    seboolean:
+      name: allow_ftpd_anon_write
+      state: on
+      persistent: yes
+    notify:
+      - restart {{ service_name }}
+
+  - name: "create content folder"
+    file:
+      path: "{{ root }}"
+      state: directory
+      mode: 0555
+      owner: ftp
+      group: ftp
+
+  - name: "create content upload folder"
+    file: 
+      path: "{{ root }}/{{ content_folder }}"
+      state: directory
+      mode: 0775
+      owner: ftp
+      group: ftp
+
+
+  - name: "set public_content_rw_t content upload folder"
+    sefcontext:
+      target: "{{ root }}/{{ content_folder }}"
+      setype: public_content_rw_t
+    register: apply_se_content_required
+
+  - name: "Apply new SELinux file context to filesystem"
+    command: restorecon -irv "{{ root }}/{{ content_folder }}"
+    when: apply_se_content_required is changed
+      
+  - name: "configure servise {{ package_name }}"
+    template: src={{ service_name }}.conf dest=/etc/{{ service_name }}/{{ service_name }}.conf owner=root group=root
+    notify:
+      - restart {{ service_name }}  
+
+  - name: "Running servise {{ package_name }}"
+    service: 
+      name: "{{ service_name }}"
+      state: started
+      enabled: yes
+
+  - name: "Open port 21 on firewall"
+    firewalld:
+      port: 21/tcp
+      permanent: yes
+      state: enabled
+      immediate: yes
+
+  - name: "Open ftp port on firewall"
+    firewalld:
+      service: ftp
+      permanent: yes
+      state: enabled
+      immediate: yes
+
+  - name: "Open pasv ftp ports on firewall"
+    firewalld:
+      port: "{{ pasv_min_port }}-{{ pasv_max_port }}/tcp"
+      permanent: yes
+      state: enabled
+      immediate: yes

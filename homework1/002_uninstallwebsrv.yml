@@ -1,6 +1,6 @@
 ---
 - name: remove web server
-  hosts: testhosts
+  hosts: all
 
   vars:
     package_name: httpd

@@ -1,0 +1,5 @@
+---
+  package_name: httpd
+  service_name: httpd
+  root: /var/www
+  content_folder: html_test_folder
